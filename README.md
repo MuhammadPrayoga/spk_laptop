@@ -1,16 +1,55 @@
-# React + Vite
+# Decider-T: Laptop Recommendation System (TOPSIS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Decider-T** is a smart Decision Support System (SPK) designed to help university students choose the ideal laptop based on their specific major requirements. It utilizes the **TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution)** method to rank laptops objectively.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🎓 User Mode
 
-## React Compiler
+- **Personalized Recommendations**: Input your name and select your major (e.g., Informatics, Design, Business).
+- **Major-Specific Weighting**: The system automatically adjusts criteria weights (Price, CPU, RAM, Storage, VRAM) based on the selected major's needs.
+  - _Informatika_: Balanced high specs.
+  - _DKV_: High VRAM & RAM focus.
+  - _Bisnis_: Storage & Price focus.
+  - _Sastra_: Price focus (Budget-friendly).
+  - _Arsitektur_: CPU & RAM focus.
+- **Visual Rankings**: See the top recommended laptop with a detailed breakdown of specifications and preference scores.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🛠️ Admin Mode
 
-## Expanding the ESLint configuration
+- **Manage Laptop Data**: Add new laptops to the database with specifications (Price, CPU, RAM, Storage, VRAM).
+- **Delete Laptops**: Remove outdated models from the list.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🧠 TOPSIS Calculation Details
+
+- **Debug View**: Users can view the step-by-step calculation process:
+  1.  **Crisp Conversion**: Converting raw specs to a 1-5 scale.
+  2.  **Normalization**: Creating the normalized decision matrix (R).
+  3.  **Weighted Normalization**: Applying major-specific weights (Y).
+  4.  **Ideal Solutions**: Determining Positive (A+) and Negative (A-) ideal solutions.
+  5.  **Preference Calculation**: Calculating distances and final preference values (V).
+
+## 🛠️ Tech Stack
+
+- **Frontend Framework**: [React](https://react.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Utilities**: `clsx`, `tailwind-merge`
+
+## 📦 Installation & Run
+
+1.  **Clone the repository** (if applicable)
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+3.  **Run the development server**:
+    ```bash
+    npm run dev
+    ```
+4.  Open your browser at `http://localhost:5173` (or the URL shown in the terminal).
+
+## 📝 License
+
+This project is created for educational purposes.
