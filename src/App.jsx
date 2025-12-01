@@ -15,6 +15,9 @@ import {
   ChevronDown,
   ChevronUp,
   Info,
+  Lock,
+  Edit,
+  X,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -329,6 +332,9 @@ export default function App() {
   const [showDebug, setShowDebug] = useState(false);
 
   // Admin State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginPassword, setLoginPassword] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -361,18 +367,79 @@ export default function App() {
     setUserState({ name: "", major: "" });
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginPassword === "admin123") {
+      setIsAuthenticated(true);
+      setShowLogin(false);
+      setView("admin");
+      setLoginPassword("");
+    } else {
+      alert("Password salah!");
+    }
+  };
+
   const handleAddLaptop = (e) => {
     e.preventDefault();
-    const newLaptop = {
-      id: Date.now(),
-      name: formData.name,
-      price: Number(formData.price),
-      cpu: Number(formData.cpu),
-      ram: Number(formData.ram),
-      storage: Number(formData.storage),
-      vram: Number(formData.vram),
-    };
-    setLaptops([...laptops, newLaptop]);
+
+    if (editingId) {
+      // Update existing
+      setLaptops(
+        laptops.map((l) =>
+          l.id === editingId
+            ? {
+                ...l,
+                name: formData.name,
+                price: Number(formData.price),
+                cpu: Number(formData.cpu),
+                ram: Number(formData.ram),
+                storage: Number(formData.storage),
+                vram: Number(formData.vram),
+              }
+            : l
+        )
+      );
+      setEditingId(null);
+    } else {
+      // Add new
+      const newLaptop = {
+        id: Date.now(),
+        name: formData.name,
+        price: Number(formData.price),
+        cpu: Number(formData.cpu),
+        ram: Number(formData.ram),
+        storage: Number(formData.storage),
+        vram: Number(formData.vram),
+      };
+      setLaptops([...laptops, newLaptop]);
+    }
+
+    setFormData({
+      name: "",
+      price: "",
+      cpu: "",
+      ram: "",
+      storage: "",
+      vram: "",
+    });
+  };
+
+  const handleEdit = (laptop) => {
+    setEditingId(laptop.id);
+    setFormData({
+      name: laptop.name,
+      price: laptop.price,
+      cpu: laptop.cpu,
+      ram: laptop.ram,
+      storage: laptop.storage,
+      vram: laptop.vram,
+    });
+    // Scroll to top of form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
     setFormData({
       name: "",
       price: "",
@@ -384,7 +451,9 @@ export default function App() {
   };
 
   const handleDelete = (id) => {
-    setLaptops(laptops.filter((l) => l.id !== id));
+    if (window.confirm("Yakin ingin menghapus laptop ini?")) {
+      setLaptops(laptops.filter((l) => l.id !== id));
+    }
   };
 
   return (
@@ -416,7 +485,13 @@ export default function App() {
               <User size={16} /> Pengguna
             </button>
             <button
-              onClick={() => setView("admin")}
+              onClick={() => {
+                if (isAuthenticated) {
+                  setView("admin");
+                } else {
+                  setShowLogin(true);
+                }
+              }}
               className={cn(
                 "px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-2",
                 view === "admin"
@@ -431,6 +506,36 @@ export default function App() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Login Modal */}
+        {showLogin && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+            <Card className="w-full max-w-md p-8 space-y-6 bg-slate-900 border-slate-800">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-white">Login Admin</h3>
+                <button
+                  onClick={() => setShowLogin(false)}
+                  className="text-slate-400 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <Input
+                  label="Password"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Masukkan password admin..."
+                  autoFocus
+                />
+                <Button type="submit" className="w-full justify-center">
+                  Masuk <Lock size={16} />
+                </Button>
+              </form>
+            </Card>
+          </div>
+        )}
+
         {view === "user" ? (
           <div className="space-y-8">
             {/* User Input Section */}
@@ -763,6 +868,22 @@ export default function App() {
                 onSubmit={handleAddLaptop}
                 className="grid grid-cols-2 md:grid-cols-3 gap-4"
               >
+                <div className="col-span-2 md:col-span-3 flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-lg text-slate-200">
+                    {editingId ? "Edit Laptop" : "Tambah Laptop Baru"}
+                  </h3>
+                  {editingId && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleCancelEdit}
+                      className="text-xs"
+                    >
+                      Batal Edit
+                    </Button>
+                  )}
+                </div>
+
                 <div className="col-span-2 md:col-span-3">
                   <Input
                     label="Nama Laptop"
@@ -825,8 +946,16 @@ export default function App() {
                   required
                 />
                 <div className="col-span-2 md:col-span-3 flex justify-end pt-2">
-                  <Button type="submit">
-                    <Plus size={18} /> Tambah Laptop
+                  <Button type="submit" className="w-full justify-center">
+                    {editingId ? (
+                      <>
+                        <Save size={18} /> Simpan Perubahan
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={18} /> Tambah Laptop
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
@@ -862,13 +991,24 @@ export default function App() {
                       <td className="px-6 py-4">{laptop.storage} GB</td>
                       <td className="px-6 py-4">{laptop.vram} GB</td>
                       <td className="px-6 py-4 text-right">
-                        <Button
-                          variant="danger"
-                          onClick={() => handleDelete(laptop.id)}
-                          className="px-2 py-1 ml-auto"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="secondary"
+                            onClick={() => handleEdit(laptop)}
+                            className="px-2 py-1"
+                            title="Edit"
+                          >
+                            <Edit size={14} />
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() => handleDelete(laptop.id)}
+                            className="px-2 py-1"
+                            title="Hapus"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
