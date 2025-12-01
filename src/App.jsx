@@ -20,6 +20,8 @@ import {
   X,
   RefreshCw,
   Image as ImageIcon,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -287,7 +289,7 @@ const calculateTOPSIS = (laptops, weights) => {
 const Card = ({ children, className }) => (
   <div
     className={cn(
-      "bg-slate-800 rounded-xl border border-slate-700 shadow-lg p-6",
+      "bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg p-6 transition-colors duration-300",
       className
     )}
   >
@@ -297,11 +299,14 @@ const Card = ({ children, className }) => (
 
 const Button = ({ children, variant = "primary", className, ...props }) => {
   const variants = {
-    primary: "bg-red-600 hover:bg-red-700 text-white",
-    secondary: "bg-slate-700 hover:bg-slate-600 text-slate-200",
+    primary:
+      "bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20",
+    secondary:
+      "bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200",
     danger:
       "bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/50",
-    ghost: "hover:bg-slate-700/50 text-slate-400 hover:text-slate-200",
+    ghost:
+      "hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200",
   };
 
   return (
@@ -321,10 +326,12 @@ const Button = ({ children, variant = "primary", className, ...props }) => {
 const Input = ({ label, ...props }) => (
   <div className="flex flex-col gap-1.5">
     {label && (
-      <label className="text-sm font-medium text-slate-400">{label}</label>
+      <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+        {label}
+      </label>
     )}
     <input
-      className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+      className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
       {...props}
     />
   </div>
@@ -333,10 +340,12 @@ const Input = ({ label, ...props }) => (
 const Select = ({ label, options, ...props }) => (
   <div className="flex flex-col gap-1.5">
     {label && (
-      <label className="text-sm font-medium text-slate-400">{label}</label>
+      <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+        {label}
+      </label>
     )}
     <select
-      className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all appearance-none"
+      className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all appearance-none"
       {...props}
     >
       {options.map((opt) => (
@@ -358,6 +367,26 @@ export default function App() {
     const saved = localStorage.getItem("spk_laptops_data");
     return saved ? JSON.parse(saved) : INITIAL_LAPTOPS;
   });
+
+  // Theme State
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") || "dark";
+    }
+    return "dark";
+  });
+
+  // Apply Theme
+  React.useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   // Save to LocalStorage whenever laptops change
   React.useEffect(() => {
@@ -510,50 +539,65 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-red-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-red-500/30 transition-colors duration-300">
       {/* Navigation */}
-      <nav className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-xl sticky top-0 z-50">
+      <nav className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/50 backdrop-blur-xl sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20">
               <Calculator className="text-white w-6 h-6" />
             </div>
             <div>
-              <h1 className="font-bold text-xl tracking-tight">Decider-T</h1>
-              <p className="text-xs text-slate-400 font-medium">
+              <h1 className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
+                Decider-T
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Metode TOPSIS
               </p>
             </div>
           </div>
-          <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
+          <div className="flex items-center gap-4">
             <button
-              onClick={() => setView("user")}
-              className={cn(
-                "px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-2",
-                view === "user"
-                  ? "bg-slate-800 text-white shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
-              )}
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              title={
+                theme === "dark"
+                  ? "Switch to Light Mode"
+                  : "Switch to Dark Mode"
+              }
             >
-              <User size={16} /> Pengguna
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <button
-              onClick={() => {
-                if (isAuthenticated) {
-                  setView("admin");
-                } else {
-                  setShowLogin(true);
-                }
-              }}
-              className={cn(
-                "px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-2",
-                view === "admin"
-                  ? "bg-slate-800 text-white shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
-              )}
-            >
-              <LayoutDashboard size={16} /> Admin
-            </button>
+            <div className="flex gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => setView("user")}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-2",
+                  view === "user"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                )}
+              >
+                <User size={16} /> Pengguna
+              </button>
+              <button
+                onClick={() => {
+                  if (isAuthenticated) {
+                    setView("admin");
+                  } else {
+                    setShowLogin(true);
+                  }
+                }}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-2",
+                  view === "admin"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                )}
+              >
+                <LayoutDashboard size={16} /> Admin
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -561,13 +605,15 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Login Modal */}
         {showLogin && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-            <Card className="w-full max-w-md p-8 space-y-6 bg-slate-900 border-slate-800">
+          <div className="fixed inset-0 bg-slate-900/50 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+            <Card className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-white">Login Admin</h3>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Login Admin
+                </h3>
                 <button
                   onClick={() => setShowLogin(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
                   <X size={20} />
                 </button>
@@ -595,16 +641,16 @@ export default function App() {
             {!submitted ? (
               <section className="max-w-2xl mx-auto text-center space-y-6 animate-in fade-in zoom-in duration-500">
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                  <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
                     Temukan Laptop Idealmu
                   </h2>
-                  <p className="text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-400">
                     Sistem pendukung keputusan cerdas berbasis metode TOPSIS
                     untuk mahasiswa.
                   </p>
                 </div>
 
-                <Card className="text-left space-y-6 bg-slate-900/50 border-slate-800">
+                <Card className="text-left space-y-6 bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
                   <div className="grid gap-6 md:grid-cols-2">
                     <Input
                       label="Nama Lengkap"
@@ -638,16 +684,19 @@ export default function App() {
               /* Results Section */
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Greeting Header */}
-                <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-slate-800 pb-6">
+                <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                       Halo,{" "}
-                      <span className="text-red-400">{userState.name}</span>!
+                      <span className="text-red-500 dark:text-red-400">
+                        {userState.name}
+                      </span>
+                      !
                     </h2>
-                    <p className="text-slate-400">
+                    <p className="text-slate-600 dark:text-slate-400">
                       Berikut adalah rekomendasi laptop terbaik yang disesuaikan
                       untuk kebutuhan jurusan{" "}
-                      <span className="text-slate-200 font-semibold">
+                      <span className="text-slate-900 dark:text-slate-200 font-semibold">
                         {selectedMajor?.name}
                       </span>
                       .
@@ -681,8 +730,8 @@ export default function App() {
                 {/* Top Pick Hero */}
                 <div className="relative group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-rose-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                  <Card className="relative bg-slate-900 border-slate-700/50 flex flex-col md:flex-row gap-8 items-center p-8">
-                    <div className="w-full md:w-1/3 aspect-video bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 overflow-hidden">
+                  <Card className="relative bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 flex flex-col md:flex-row gap-8 items-center p-8">
+                    <div className="w-full md:w-1/3 aspect-video bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 overflow-hidden">
                       {topsisResults[0].image ? (
                         <img
                           src={topsisResults[0].image}
@@ -690,30 +739,33 @@ export default function App() {
                           className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
-                        <Monitor size={64} className="text-slate-600" />
+                        <Monitor
+                          size={64}
+                          className="text-slate-400 dark:text-slate-600"
+                        />
                       )}
                     </div>
                     <div className="flex-1 space-y-4 w-full">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold mb-2 border border-emerald-500/20">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-2 border border-emerald-200 dark:border-emerald-500/20">
                             <Trophy size={12} /> PERINGKAT #1
                           </div>
-                          <h4 className="text-3xl font-bold text-white">
+                          <h4 className="text-3xl font-bold text-slate-900 dark:text-white">
                             {topsisResults[0].name}
                           </h4>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-slate-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
                             Nilai Preferensi
                           </p>
-                          <p className="text-2xl font-bold text-red-400">
+                          <p className="text-2xl font-bold text-red-500 dark:text-red-400">
                             {topsisResults[0].preference.toFixed(4)}
                           </p>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                         <SpecItem
                           icon={DollarSign}
                           label="Harga"
@@ -744,9 +796,9 @@ export default function App() {
                   {topsisResults.slice(1).map((laptop, idx) => (
                     <Card
                       key={laptop.id}
-                      className="hover:border-slate-600 transition-colors flex flex-col"
+                      className="hover:border-slate-400 dark:hover:border-slate-600 transition-colors flex flex-col"
                     >
-                      <div className="w-full aspect-video bg-slate-900 rounded-lg mb-4 overflow-hidden border border-slate-800">
+                      <div className="w-full aspect-video bg-slate-100 dark:bg-slate-900 rounded-lg mb-4 overflow-hidden border border-slate-200 dark:border-slate-800">
                         {laptop.image ? (
                           <img
                             src={laptop.image}
@@ -755,31 +807,34 @@ export default function App() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <Monitor size={32} className="text-slate-700" />
+                            <Monitor
+                              size={32}
+                              className="text-slate-300 dark:text-slate-700"
+                            />
                           </div>
                         )}
                       </div>
                       <div className="flex justify-between items-start mb-4">
-                        <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center font-bold text-slate-500 border border-slate-700 text-sm">
+                        <div className="w-8 h-8 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center font-bold text-slate-500 border border-slate-200 dark:border-slate-700 text-sm">
                           #{idx + 2}
                         </div>
                         <span className="text-sm font-mono text-slate-500">
                           V: {laptop.preference.toFixed(4)}
                         </span>
                       </div>
-                      <h5 className="font-bold text-lg mb-4 truncate">
+                      <h5 className="font-bold text-lg mb-4 truncate text-slate-900 dark:text-white">
                         {laptop.name}
                       </h5>
-                      <div className="space-y-2 text-sm text-slate-400 mt-auto">
+                      <div className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mt-auto">
                         <div className="flex justify-between">
                           <span>Harga</span>
-                          <span className="text-slate-200">
+                          <span className="text-slate-900 dark:text-slate-200">
                             Rp {laptop.price.toLocaleString()}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span>Spek</span>
-                          <span className="text-slate-200">
+                          <span className="text-slate-900 dark:text-slate-200">
                             {laptop.cpu}C / {laptop.ram}GB / {laptop.storage}GB
                           </span>
                         </div>
@@ -790,8 +845,8 @@ export default function App() {
 
                 {/* Debug Tables */}
                 {showDebug && (
-                  <div className="space-y-8 pt-8 border-t border-slate-800 animate-in fade-in">
-                    <h3 className="text-xl font-bold text-slate-200">
+                  <div className="space-y-8 pt-8 border-t border-slate-200 dark:border-slate-800 animate-in fade-in">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-200">
                       Detail Perhitungan (TOPSIS)
                     </h3>
 
@@ -1110,24 +1165,26 @@ export default function App() {
 
 const SpecItem = ({ icon: Icon, label, value }) => (
   <div className="flex items-center gap-3">
-    <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
+    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
       <Icon size={16} />
     </div>
     <div>
       <p className="text-xs text-slate-500 font-medium uppercase">{label}</p>
-      <p className="text-sm font-semibold text-slate-200">{value}</p>
+      <p className="text-sm font-semibold text-slate-900 dark:text-slate-200">
+        {value}
+      </p>
     </div>
   </div>
 );
 
 const DebugTable = ({ title, headers, rows }) => (
   <div className="space-y-3">
-    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+    <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
       {title}
     </h4>
-    <div className="overflow-x-auto rounded-lg border border-slate-800">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
       <table className="w-full text-sm text-left">
-        <thead className="bg-slate-900 text-slate-400 font-medium">
+        <thead className="bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-medium">
           <tr>
             {headers.map((h, i) => (
               <th key={i} className="px-4 py-3 whitespace-nowrap">
@@ -1136,13 +1193,13 @@ const DebugTable = ({ title, headers, rows }) => (
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800 bg-slate-900/30">
+        <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white/30 dark:bg-slate-900/30">
           {rows.map((row, i) => (
             <tr key={i}>
               {row.map((cell, j) => (
                 <td
                   key={j}
-                  className="px-4 py-2 font-mono text-slate-300 whitespace-nowrap"
+                  className="px-4 py-2 font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap"
                 >
                   {cell}
                 </td>
