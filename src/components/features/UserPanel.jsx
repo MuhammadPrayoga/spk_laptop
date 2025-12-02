@@ -17,6 +17,7 @@ import Button from "../ui/Button";
 import LaptopCard from "./LaptopCard";
 import SpecItem from "../shared/SpecItem";
 import DebugTable from "../shared/DebugTable";
+import LaptopDetailModal from "./LaptopDetailModal";
 import { MAJORS } from "../../utils/topsis";
 
 const UserPanel = ({
@@ -29,6 +30,8 @@ const UserPanel = ({
   handleSubmit,
   selectedMajor,
 }) => {
+  const [selectedLaptop, setSelectedLaptop] = React.useState(null);
+
   return (
     <div className="space-y-12">
       {!submitted ? (
@@ -110,7 +113,10 @@ const UserPanel = ({
               {/* Top Pick Hero */}
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-rose-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                <Card className="relative bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 flex flex-col md:flex-row gap-8 items-center p-8">
+                <Card
+                  onClick={() => setSelectedLaptop(topsisResults[0])}
+                  className="relative bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 flex flex-col md:flex-row gap-8 items-center p-8 cursor-pointer hover:border-red-500/50 transition-colors"
+                >
                   <div className="w-full md:w-1/3 aspect-video bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 overflow-hidden">
                     {topsisResults[0].image ? (
                       <img
@@ -174,7 +180,12 @@ const UserPanel = ({
               {/* Other Recommendations Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {topsisResults.slice(1).map((laptop, idx) => (
-                  <LaptopCard key={laptop.id} laptop={laptop} idx={idx} />
+                  <LaptopCard
+                    key={laptop.id}
+                    laptop={laptop}
+                    idx={idx}
+                    onClick={() => setSelectedLaptop(laptop)}
+                  />
                 ))}
               </div>
 
@@ -261,6 +272,11 @@ const UserPanel = ({
           )}
         </div>
       )}
+
+      <LaptopDetailModal
+        laptop={selectedLaptop}
+        onClose={() => setSelectedLaptop(null)}
+      />
     </div>
   );
 };

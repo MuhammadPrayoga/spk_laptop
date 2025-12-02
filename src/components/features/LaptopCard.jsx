@@ -2,9 +2,12 @@ import React from "react";
 import { Monitor } from "lucide-react";
 import Card from "../ui/Card";
 
-const LaptopCard = ({ laptop, idx }) => {
+const LaptopCard = ({ laptop, idx, onClick }) => {
   return (
-    <Card className="hover:border-slate-400 dark:hover:border-slate-600 transition-colors flex flex-col">
+    <Card
+      onClick={onClick}
+      className="hover:border-red-400 dark:hover:border-red-600 transition-all duration-300 flex flex-col cursor-pointer group hover:shadow-xl hover:shadow-red-500/10 hover:-translate-y-1"
+    >
       <div className="w-full aspect-video bg-slate-100 dark:bg-slate-900 rounded-lg mb-4 overflow-hidden border border-slate-200 dark:border-slate-800">
         {laptop.image ? (
           <img
